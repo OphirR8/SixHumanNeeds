@@ -70,7 +70,6 @@
       <div class="need" data-k="growth"><label>Growth</label><input id="growth" type="range" min="0" max="10" value="5"><div class="val" id="val-growth">5</div></div>
       <div class="need" data-k="contribution"><label>Contribution</label><input id="contribution" type="range" min="0" max="10" value="5"><div class="val" id="val-contribution">5</div></div>
       <div class="btns">
-        <button id="capture" class="primary">Capture</button>
         <button id="copy">Copy</button>
         <button id="reset">Reset</button>
       </div>
@@ -83,7 +82,6 @@
       <div class="areaLabel">Area: <span id="areaLabel">Business</span></div>
       <canvas id="wheel" width="420" height="420"></canvas>
       <div id="summary"></div>
-      <!-- Coaching ideas removed from view as requested -->
     </section>
   </div>
 </div>
@@ -136,18 +134,15 @@ function drawWheel(){
 function analyze(){
  const vals=values();
  const sorted=[...vals].sort((a,b)=>b.value-a.value);const top=sorted.slice(0,2);const low=sorted[sorted.length-1];
- const mean=vals.reduce((s,v)=>s+v.value,0)/vals.length;const variance=vals.reduce((s,v)=>s+Math.pow(v.value-mean,2),0)/vals.length;const balance=Math.sqrt(variance);
- document.getElementById('summary').textContent=`Top: ${top.map(t=>t.label+` (${t.value})`).join(', ')} | Lowest: ${low.label} (${low.value}) | Balance: ${balance.toFixed(1)}`;
+ document.getElementById('summary').textContent=`Top: ${top.map(t=>t.label+` (${t.value})`).join(', ')} | Lowest: ${low.label} (${low.value})`;
  drawWheel();
 }
 
 // --- Clipboard helpers ---
 async function copyTextToClipboard(text){
-  // Try modern API first
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try { await navigator.clipboard.writeText(text); alert('Scores copied to clipboard.'); return; } catch(e){}
   }
-  // Fallback via hidden textarea (works in more iframes)
   copyFallback.value = text; copyFallback.select(); copyFallback.setSelectionRange(0, text.length);
   try {
     const ok = document.execCommand('copy');
@@ -157,50 +152,11 @@ async function copyTextToClipboard(text){
   }
 }
 
-async function copyImageFromCanvas(off){
-  // Best-effort: requires HTTPS + clipboard permissions (often blocked in embeds)
-  if (navigator.clipboard && window.ClipboardItem) {
-    try{
-      const blob = await new Promise(res=>off.toBlob(res,'image/png'));
-      await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]);
-      alert('Image copied to clipboard. You can paste it.');
-      return;
-    }catch(e){ /* fall through to fallback */ }
-  }
-  // Fallback 1: open in new tab (lets you right‑click copy/save)
-  const dataURL = off.toDataURL('image/png');
-  try { window.open(dataURL, '_blank'); } catch(e) {}
-  // Fallback 2: trigger download (if allowed)
-  const link=document.createElement('a');
-  link.href=dataURL; link.download='six-human-needs.png';
-  document.body.appendChild(link); link.click(); document.body.removeChild(link);
-  alert('Clipboard blocked in this embed. Opened the image and attempted a download instead.');
-}
-
 function buildScoresText(){
   const vals=values();
   const area=areaSel.value;
   const lines = [`Area: ${area}`].concat(vals.map(v=>`${v.label}: ${v.value}`));
   return lines.join('\n');
-}
-
-function composeCaptureImage(){
-  const area=areaSel.value; const vals=values();
-  // Create an offscreen canvas taller to include scores footer
-  const w=canvas.width, h=canvas.height + 110; const off=document.createElement('canvas'); off.width=w; off.height=h; const octx=off.getContext('2d');
-  // white bg
-  octx.fillStyle='#ffffff'; octx.fillRect(0,0,w,h);
-  // area title
-  octx.fillStyle='#334155'; octx.font='14px system-ui'; octx.fillText(`Area: ${area}`, 12, 20);
-  // wheel image
-  octx.drawImage(canvas,0,26);
-  // footer scores (two columns)
-  octx.font='13px system-ui';
-  const leftCol = vals.slice(0,3), rightCol = vals.slice(3);
-  let yBase = canvas.height + 45;
-  leftCol.forEach((v,i)=>{ octx.fillStyle=v.color; octx.fillText(v.label+': '+v.value, 20, yBase + i*18); });
-  rightCol.forEach((v,i)=>{ octx.fillStyle=v.color; octx.fillText(v.label+': '+v.value, w/2+20, yBase + i*18); });
-  return off;
 }
 
 // events
@@ -209,7 +165,6 @@ areaSel.addEventListener('change', refresh);
 Object.values(sliders).forEach(sl=>sl.addEventListener('input', refresh));
 
 document.getElementById('copy').addEventListener('click',()=> copyTextToClipboard(buildScoresText()));
-document.getElementById('capture').addEventListener('click',()=>{ const off=composeCaptureImage(); copyImageFromCanvas(off); });
 
 document.getElementById('reset').addEventListener('click',()=>{
   for (const k in sliders) { sliders[k].value = 5; }

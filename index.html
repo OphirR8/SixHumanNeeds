@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Six Human Needs Wheel</title>
+  <style>
+    :root{
+      --c-certainty:#2563eb; --c-variety:#f59e0b; --c-significance:#ef4444;
+      --c-connection:#8b5cf6; --c-growth:#10b981; --c-contribution:#14b8a6;
+      --border:#e2e8f0; --text:#0f172a;
+    }
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#fff;color:var(--text)}
+    .container{max-width:1100px;margin:0 auto;padding:20px}
+    h1{margin:0 0 10px 0;font-size:20px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+    .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
+    label{font-size:14px}
+    select{width:100%;padding:6px;border:1px solid var(--border);border-radius:6px}
+
+    /* Left column sliders */
+    .need{display:grid;grid-template-columns:110px 1fr 34px;align-items:center;gap:10px;margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:10px}
+    .need[data-k="certainty"]{border-left:4px solid var(--c-certainty)}
+    .need[data-k="variety"]{border-left:4px solid var(--c-variety)}
+    .need[data-k="significance"]{border-left:4px solid var(--c-significance)}
+    .need[data-k="connection"]{border-left:4px solid var(--c-connection)}
+    .need[data-k="growth"]{border-left:4px solid var(--c-growth)}
+    .need[data-k="contribution"]{border-left:4px solid var(--c-contribution)}
+    .need label{font-size:13px}
+    .need input[type=range]{appearance:none;height:4px;background:#f1f5f9;border-radius:999px;outline:none}
+    .need input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#111827;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+    .val{min-width:28px;text-align:right;font-size:13px;color:#0f172a}
+
+    /* Buttons */
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{border-radius:6px;border:1px solid var(--border);padding:6px 10px;background:#fff;cursor:pointer}
+    button.primary{background:#111827;color:#fff;border-color:#111827;font-weight:700}
+
+    /* Canvas */
+    canvas{width:100%;max-width:420px;height:auto;display:block;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:12px}
+    #summary{margin-top:8px;font-size:14px}
+    .areaLabel{font-size:14px;margin:6px 0 8px 0;color:#334155}
+
+    /* Hidden textarea for copy fallback */
+    #copyFallback{position:absolute;left:-9999px;top:-9999px;opacity:0}
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Six Human Needs Wheel</h1>
+  <div class="grid">
+    <!-- LEFT: inputs -->
+    <section class="card">
+      <h2 style="font-size:16px;margin-top:0">1) Pick Area</h2>
+      <select id="area">
+        <option>Business</option>
+        <option>Career</option>
+        <option>Relationships</option>
+        <option>Health & Fitness</option>
+        <option>Confidence</option>
+        <option>Finances</option>
+        <option>Parenting</option>
+        <option>Spirituality</option>
+      </select>
+      <h2 style="font-size:16px;margin-top:16px">2) Rank Needs</h2>
+      <div class="need" data-k="certainty"><label>Certainty</label><input id="certainty" type="range" min="0" max="10" value="5"><div class="val" id="val-certainty">5</div></div>
+      <div class="need" data-k="variety"><label>Variety</label><input id="variety" type="range" min="0" max="10" value="5"><div class="val" id="val-variety">5</div></div>
+      <div class="need" data-k="significance"><label>Significance</label><input id="significance" type="range" min="0" max="10" value="5"><div class="val" id="val-significance">5</div></div>
+      <div class="need" data-k="connection"><label>Connection/Love</label><input id="connection" type="range" min="0" max="10" value="5"><div class="val" id="val-connection">5</div></div>
+      <div class="need" data-k="growth"><label>Growth</label><input id="growth" type="range" min="0" max="10" value="5"><div class="val" id="val-growth">5</div></div>
+      <div class="need" data-k="contribution"><label>Contribution</label><input id="contribution" type="range" min="0" max="10" value="5"><div class="val" id="val-contribution">5</div></div>
+      <div class="btns">
+        <button id="capture" class="primary">Capture</button>
+        <button id="copy">Copy</button>
+        <button id="reset">Reset</button>
+      </div>
+      <textarea id="copyFallback"></textarea>
+    </section>
+
+    <!-- RIGHT: visual -->
+    <section class="card" style="display:flex;flex-direction:column;gap:6px">
+      <h2 style="font-size:16px;margin:0">Visual</h2>
+      <div class="areaLabel">Area: <span id="areaLabel">Business</span></div>
+      <canvas id="wheel" width="420" height="420"></canvas>
+      <div id="summary"></div>
+      <!-- Coaching ideas removed from view as requested -->
+    </section>
+  </div>
+</div>
+<script>
+const needsOrder=[
+ {key:'certainty',label:'Certainty',color:getCSS('--c-certainty')},
+ {key:'variety',label:'Variety',color:getCSS('--c-variety')},
+ {key:'significance',label:'Significance',color:getCSS('--c-significance')},
+ {key:'connection',label:'Connection/Love',color:getCSS('--c-connection')},
+ {key:'growth',label:'Growth',color:getCSS('--c-growth')},
+ {key:'contribution',label:'Contribution',color:getCSS('--c-contribution')},
+];
+function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+const sliders=Object.fromEntries(needsOrder.map(n=>[n.key,document.getElementById(n.key)]));
+const areaSel=document.getElementById('area');
+const areaLabel=document.getElementById('areaLabel');
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
+const copyFallback=document.getElementById('copyFallback');
+function values(){return needsOrder.map(n=>({...n,value:+sliders[n.key].value}));}
+function updateValueLabels(){for(const n of needsOrder){document.getElementById(`val-${n.key}`).textContent=sliders[n.key].value;}}
+
+function roundedRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+function drawWheel(){
+ const vals=values();const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+ const cx=W/2,cy=H/2,R=170,inner=40;const slice=(Math.PI*2)/vals.length;
+ ctx.save();ctx.translate(cx,cy);
+ // grid
+ ctx.strokeStyle='#e5e7eb';for(let r=inner;r<=R;r+=(R-inner)/5){ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();}
+ // axes
+ ctx.strokeStyle='#cbd5e1';vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R);ctx.stroke();});
+ // polygon
+ ctx.beginPath();vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;const r=inner+(v.value/10)*(R-inner);const x=Math.cos(a)*r;const y=Math.sin(a)*r;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.closePath();ctx.fillStyle='rgba(17,24,39,0.10)';ctx.fill();ctx.strokeStyle='#111827';ctx.lineWidth=2;ctx.stroke();
+ // labels at axis end
+ ctx.font='12px system-ui, -apple-system, Segoe UI, Roboto';ctx.fillStyle='var(--text)';
+ vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;const r=R+16;const x=Math.cos(a)*r;const y=Math.sin(a)*r;ctx.textAlign=Math.abs(Math.cos(a))<0.3?'center':(Math.cos(a)>0?'left':'right');ctx.textBaseline='middle';ctx.fillText(v.label,x,y);});
+ // moving numeric marker
+ vals.forEach((v,i)=>{
+   const a=i*slice-Math.PI/2;const r=inner+(v.value/10)*(R-inner);const x=Math.cos(a)*r;const y=Math.sin(a)*r;
+   ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=v.color;ctx.fill();
+   const tx=x + (Math.cos(a)*16); const ty=y + (Math.sin(a)*16);
+   const text=String(v.value); ctx.font='12px system-ui'; const padX=6; const h=18; const w=ctx.measureText(text).width + padX*2; const rx=tx - w/2; const ry=ty - h/2;
+   ctx.fillStyle='rgba(0,0,0,0.06)'; roundedRect(rx,ry,w,h,8); ctx.fill();
+   ctx.fillStyle=v.color; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text, tx, ty+0.5);
+ });
+ ctx.restore();
+}
+
+function analyze(){
+ const vals=values();
+ const sorted=[...vals].sort((a,b)=>b.value-a.value);const top=sorted.slice(0,2);const low=sorted[sorted.length-1];
+ const mean=vals.reduce((s,v)=>s+v.value,0)/vals.length;const variance=vals.reduce((s,v)=>s+Math.pow(v.value-mean,2),0)/vals.length;const balance=Math.sqrt(variance);
+ document.getElementById('summary').textContent=`Top: ${top.map(t=>t.label+` (${t.value})`).join(', ')} | Lowest: ${low.label} (${low.value}) | Balance: ${balance.toFixed(1)}`;
+ drawWheel();
+}
+
+// --- Clipboard helpers ---
+async function copyTextToClipboard(text){
+  // Try modern API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try { await navigator.clipboard.writeText(text); alert('Scores copied to clipboard.'); return; } catch(e){}
+  }
+  // Fallback via hidden textarea (works in more iframes)
+  copyFallback.value = text; copyFallback.select(); copyFallback.setSelectionRange(0, text.length);
+  try {
+    const ok = document.execCommand('copy');
+    alert(ok ? 'Scores copied to clipboard.' : 'Copy failed.');
+  } catch(e) {
+    alert('Copy failed. Select and copy manually:\n\n'+text);
+  }
+}
+
+async function copyImageFromCanvas(off){
+  // Best-effort: requires HTTPS + clipboard permissions (often blocked in embeds)
+  if (navigator.clipboard && window.ClipboardItem) {
+    try{
+      const blob = await new Promise(res=>off.toBlob(res,'image/png'));
+      await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]);
+      alert('Image copied to clipboard. You can paste it.');
+      return;
+    }catch(e){ /* fall through to fallback */ }
+  }
+  // Fallback 1: open in new tab (lets you right‑click copy/save)
+  const dataURL = off.toDataURL('image/png');
+  try { window.open(dataURL, '_blank'); } catch(e) {}
+  // Fallback 2: trigger download (if allowed)
+  const link=document.createElement('a');
+  link.href=dataURL; link.download='six-human-needs.png';
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  alert('Clipboard blocked in this embed. Opened the image and attempted a download instead.');
+}
+
+function buildScoresText(){
+  const vals=values();
+  const area=areaSel.value;
+  const lines = [`Area: ${area}`].concat(vals.map(v=>`${v.label}: ${v.value}`));
+  return lines.join('\n');
+}
+
+function composeCaptureImage(){
+  const area=areaSel.value; const vals=values();
+  // Create an offscreen canvas taller to include scores footer
+  const w=canvas.width, h=canvas.height + 110; const off=document.createElement('canvas'); off.width=w; off.height=h; const octx=off.getContext('2d');
+  // white bg
+  octx.fillStyle='#ffffff'; octx.fillRect(0,0,w,h);
+  // area title
+  octx.fillStyle='#334155'; octx.font='14px system-ui'; octx.fillText(`Area: ${area}`, 12, 20);
+  // wheel image
+  octx.drawImage(canvas,0,26);
+  // footer scores (two columns)
+  octx.font='13px system-ui';
+  const leftCol = vals.slice(0,3), rightCol = vals.slice(3);
+  let yBase = canvas.height + 45;
+  leftCol.forEach((v,i)=>{ octx.fillStyle=v.color; octx.fillText(v.label+': '+v.value, 20, yBase + i*18); });
+  rightCol.forEach((v,i)=>{ octx.fillStyle=v.color; octx.fillText(v.label+': '+v.value, w/2+20, yBase + i*18); });
+  return off;
+}
+
+// events
+function refresh(){ areaLabel.textContent = areaSel.value; updateValueLabels(); analyze(); }
+areaSel.addEventListener('change', refresh);
+Object.values(sliders).forEach(sl=>sl.addEventListener('input', refresh));
+
+document.getElementById('copy').addEventListener('click',()=> copyTextToClipboard(buildScoresText()));
+document.getElementById('capture').addEventListener('click',()=>{ const off=composeCaptureImage(); copyImageFromCanvas(off); });
+
+document.getElementById('reset').addEventListener('click',()=>{
+  for (const k in sliders) { sliders[k].value = 5; }
+  refresh(); document.getElementById('summary').textContent='';
+});
+
+// init
+refresh();
+</script>
+</body>
+</html>

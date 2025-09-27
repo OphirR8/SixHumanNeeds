@@ -5,49 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Six Human Needs Wheel</title>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
     :root{
-      --c-certainty:#2563eb; --c-variety:#f59e0b; --c-significance:#ef4444;
-      --c-connection:#8b5cf6; --c-growth:#10b981; --c-contribution:#14b8a6;
-      --border:#e2e8f0; --text:#0f172a;
+      --c-certainty:#2563eb; --c-variety:#f97316; --c-significance:#ef4444;
+      --c-connection:#a855f7; --c-growth:#22c55e; --c-contribution:#14b8a6;
+      --border:rgba(255,255,255,0.22); --text:#0f172a;
+      --card-bg:rgba(255,255,255,0.82); --card-shadow:0 30px 60px rgba(15,23,42,0.18);
     }
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#fff;color:var(--text)}
-    .container{max-width:1100px;margin:0 auto;padding:20px}
-    h1{margin:0 0 10px 0;font-size:20px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-    .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
-    label{font-size:14px}
-    select{width:100%;padding:6px;border:1px solid var(--border);border-radius:6px}
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Inter',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background:radial-gradient(circle at 10% 20%,#c084fc 0%,#60a5fa 30%,#22d3ee 65%,#22c55e 100%);
+      min-height:100vh;
+      color:var(--text);
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:40px 16px 60px;
+    }
+    .container{width:100%;max-width:1100px;animation:fadeUp 700ms ease-out forwards;opacity:0}
+    h1{margin:0 0 16px 0;font-size:32px;font-weight:700;color:#0f172a;text-shadow:0 10px 30px rgba(15,23,42,0.18)}
+    h1 span{display:block;font-size:16px;font-weight:500;opacity:0.8}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:26px;align-items:stretch}
+    .card{
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:24px;
+      backdrop-filter:blur(22px);
+      box-shadow:var(--card-shadow);
+      position:relative;
+      overflow:hidden;
+      animation:floatIn 800ms ease;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(120deg,rgba(255,255,255,0.25),transparent 55%);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 300ms ease;
+    }
+    .card:hover::after{opacity:1}
+    label{font-size:14px;font-weight:600;color:#0f172a}
+    select{
+      width:100%;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,0.15);
+      border-radius:14px;
+      font-size:15px;
+      background:linear-gradient(135deg,rgba(255,255,255,0.85),rgba(255,255,255,0.65));
+      box-shadow:inset 0 2px 8px rgba(15,23,42,0.08);
+      transition:box-shadow 200ms ease,border 200ms ease,transform 200ms ease;
+    }
+    select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,0.18);transform:translateY(-1px)}
 
     /* Left column sliders */
-    .need{display:grid;grid-template-columns:110px 1fr 34px;align-items:center;gap:10px;margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:10px}
-    .need[data-k="certainty"]{border-left:4px solid var(--c-certainty)}
-    .need[data-k="variety"]{border-left:4px solid var(--c-variety)}
-    .need[data-k="significance"]{border-left:4px solid var(--c-significance)}
-    .need[data-k="connection"]{border-left:4px solid var(--c-connection)}
-    .need[data-k="growth"]{border-left:4px solid var(--c-growth)}
-    .need[data-k="contribution"]{border-left:4px solid var(--c-contribution)}
-    .need label{font-size:13px}
-    .need input[type=range]{appearance:none;height:4px;background:#f1f5f9;border-radius:999px;outline:none}
-    .need input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#111827;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
-    .val{min-width:28px;text-align:right;font-size:13px;color:#0f172a}
+    .need{display:grid;grid-template-columns:120px 1fr 38px;align-items:center;gap:14px;margin:12px 0;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.78);box-shadow:0 14px 30px rgba(15,23,42,0.12);position:relative;overflow:hidden}
+    .need::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:16px 0 0 16px;opacity:0.95}
+    .need[data-k="certainty"]::before{background:linear-gradient(180deg,#2563eb,#3b82f6)}
+    .need[data-k="variety"]::before{background:linear-gradient(180deg,#f97316,#facc15)}
+    .need[data-k="significance"]::before{background:linear-gradient(180deg,#ef4444,#f97316)}
+    .need[data-k="connection"]::before{background:linear-gradient(180deg,#a855f7,#6366f1)}
+    .need[data-k="growth"]::before{background:linear-gradient(180deg,#22c55e,#10b981)}
+    .need[data-k="contribution"]::before{background:linear-gradient(180deg,#14b8a6,#0ea5e9)}
+    .need label{font-size:14px;font-weight:600;letter-spacing:0.01em}
+    .need input[type=range]{appearance:none;height:10px;border-radius:999px;background:rgba(15,23,42,0.08);outline:none;position:relative;transition:box-shadow 200ms ease}
+    .need input[type=range]::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid rgba(15,23,42,0.8);box-shadow:0 10px 20px rgba(15,23,42,0.25);transition:transform 200ms ease,box-shadow 200ms ease}
+    .need input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid rgba(15,23,42,0.8);box-shadow:0 10px 20px rgba(15,23,42,0.25);transition:transform 200ms ease,box-shadow 200ms ease}
+    .need input[type=range]:active::-webkit-slider-thumb,.need input[type=range]:focus::-webkit-slider-thumb{transform:scale(1.08);box-shadow:0 14px 24px rgba(15,23,42,0.32)}
+    .need input[type=range]:focus{box-shadow:0 0 0 4px rgba(15,23,42,0.14)}
+    .val{min-width:34px;text-align:right;font-size:15px;font-weight:600;color:#0f172a}
 
     /* Buttons */
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    button{border-radius:6px;border:1px solid var(--border);padding:6px 10px;background:#fff;cursor:pointer}
-    button.primary{background:#111827;color:#fff;border-color:#111827;font-weight:700}
+    .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+    button{border-radius:14px;border:0;padding:10px 18px;background:linear-gradient(135deg,#1d4ed8,#38bdf8);color:#fff;font-weight:600;cursor:pointer;box-shadow:0 12px 28px rgba(37,99,235,0.36);transition:transform 180ms ease,box-shadow 180ms ease}
+    button:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(37,99,235,0.42)}
+    button#reset{background:linear-gradient(135deg,#0f172a,#1f2937);box-shadow:0 12px 28px rgba(15,23,42,0.32)}
 
     /* Canvas */
-    canvas{width:100%;max-width:420px;height:auto;display:block;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:12px}
-    #summary{margin-top:8px;font-size:14px}
-    .areaLabel{font-size:14px;margin:6px 0 8px 0;color:#334155}
+    canvas{width:100%;max-width:420px;height:auto;display:block;margin:0 auto;background:rgba(255,255,255,0.92);border:1px solid rgba(15,23,42,0.08);border-radius:24px;box-shadow:0 24px 50px rgba(15,23,42,0.18)}
+    #summary{margin-top:12px;font-size:15px;font-weight:500;color:#0f172a;letter-spacing:0.01em}
+    #summary strong{color:#1d4ed8}
+    .areaLabel{font-size:15px;margin:6px 0 14px 0;color:#1e293b;font-weight:600}
 
     /* Hidden textarea for copy fallback */
     #copyFallback{position:absolute;left:-9999px;top:-9999px;opacity:0}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes floatIn{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>Six Human Needs Wheel</h1>
+  <h1>Six Human Needs Wheel <span>Visualize your balance at a glance</span></h1>
   <div class="grid">
     <!-- LEFT: inputs -->
     <section class="card">
@@ -78,7 +131,7 @@
 
     <!-- RIGHT: visual -->
     <section class="card" style="display:flex;flex-direction:column;gap:6px">
-      <h2 style="font-size:16px;margin:0">Visual</h2>
+      <h2 style="font-size:18px;margin:0;color:#0f172a">Visual</h2>
       <div class="areaLabel">Area: <span id="areaLabel">Business</span></div>
       <canvas id="wheel" width="420" height="420"></canvas>
       <div id="summary"></div>
@@ -101,31 +154,37 @@ const areaLabel=document.getElementById('areaLabel');
 const canvas=document.getElementById('wheel');
 const ctx=canvas.getContext('2d');
 const copyFallback=document.getElementById('copyFallback');
-function values(){return needsOrder.map(n=>({...n,value:+sliders[n.key].value}));}
+const displayedValues=new Array(needsOrder.length).fill(5);
+const targetValues=new Array(needsOrder.length).fill(5);
+let animating=false;
+function values(){return needsOrder.map((n,i)=>({...n,value:targetValues[i]}));}
+function animatedValues(){return needsOrder.map((n,i)=>({...n,value:displayedValues[i]}));}
 function updateValueLabels(){for(const n of needsOrder){document.getElementById(`val-${n.key}`).textContent=sliders[n.key].value;}}
+function updateSliderFill(slider,color){const val=(slider.value-slider.min)/(slider.max-slider.min);const percent=val*100;slider.style.background=`linear-gradient(90deg,${color} 0%,${color} ${percent}%,rgba(15,23,42,0.08) ${percent}%,rgba(15,23,42,0.08) 100%)`;}
+function updateAllSliderFills(){needsOrder.forEach((n,i)=>updateSliderFill(sliders[n.key],n.color));}
 
 function roundedRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 
 function drawWheel(){
- const vals=values();const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
+ const vals=animatedValues();const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);
  const cx=W/2,cy=H/2,R=170,inner=40;const slice=(Math.PI*2)/vals.length;
  ctx.save();ctx.translate(cx,cy);
  // grid
- ctx.strokeStyle='#e5e7eb';for(let r=inner;r<=R;r+=(R-inner)/5){ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();}
+ ctx.strokeStyle='rgba(148,163,184,0.35)';for(let r=inner;r<=R;r+=(R-inner)/5){ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.setLineDash([3,6]);ctx.stroke();ctx.setLineDash([]);}
  // axes
- ctx.strokeStyle='#cbd5e1';vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R);ctx.stroke();});
+ ctx.strokeStyle='rgba(51,65,85,0.35)';vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R);ctx.stroke();});
  // polygon
- ctx.beginPath();vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;const r=inner+(v.value/10)*(R-inner);const x=Math.cos(a)*r;const y=Math.sin(a)*r;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.closePath();ctx.fillStyle='rgba(17,24,39,0.10)';ctx.fill();ctx.strokeStyle='#111827';ctx.lineWidth=2;ctx.stroke();
+ ctx.beginPath();vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;const r=inner+(v.value/10)*(R-inner);const x=Math.cos(a)*r;const y=Math.sin(a)*r;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.closePath();ctx.fillStyle='rgba(59,130,246,0.12)';ctx.fill();ctx.strokeStyle='rgba(37,99,235,0.8)';ctx.lineWidth=3;ctx.shadowColor='rgba(37,99,235,0.35)';ctx.shadowBlur=18;ctx.stroke();ctx.shadowBlur=0;
  // labels at axis end
  ctx.font='12px system-ui, -apple-system, Segoe UI, Roboto';ctx.fillStyle='var(--text)';
  vals.forEach((v,i)=>{const a=i*slice-Math.PI/2;const r=R+16;const x=Math.cos(a)*r;const y=Math.sin(a)*r;ctx.textAlign=Math.abs(Math.cos(a))<0.3?'center':(Math.cos(a)>0?'left':'right');ctx.textBaseline='middle';ctx.fillText(v.label,x,y);});
  // moving numeric marker
- vals.forEach((v,i)=>{
+  vals.forEach((v,i)=>{
    const a=i*slice-Math.PI/2;const r=inner+(v.value/10)*(R-inner);const x=Math.cos(a)*r;const y=Math.sin(a)*r;
-   ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=v.color;ctx.fill();
-   const tx=x + (Math.cos(a)*16); const ty=y + (Math.sin(a)*16);
-   const text=String(v.value); ctx.font='12px system-ui'; const padX=6; const h=18; const w=ctx.measureText(text).width + padX*2; const rx=tx - w/2; const ry=ty - h/2;
-   ctx.fillStyle='rgba(0,0,0,0.06)'; roundedRect(rx,ry,w,h,8); ctx.fill();
+   ctx.beginPath();ctx.arc(x,y,5.5,0,Math.PI*2);ctx.fillStyle=v.color;ctx.fill();
+   const tx=x + (Math.cos(a)*18); const ty=y + (Math.sin(a)*18);
+   const text=v.value.toFixed(0); ctx.font='12px system-ui'; const padX=6; const h=20; const w=ctx.measureText(text).width + padX*2; const rx=tx - w/2; const ry=ty - h/2;
+   ctx.fillStyle='rgba(15,23,42,0.08)'; roundedRect(rx,ry,w,h,10); ctx.fill();
    ctx.fillStyle=v.color; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text, tx, ty+0.5);
  });
  ctx.restore();
@@ -134,8 +193,8 @@ function drawWheel(){
 function analyze(){
  const vals=values();
  const sorted=[...vals].sort((a,b)=>b.value-a.value);const top=sorted.slice(0,2);const low=sorted[sorted.length-1];
- document.getElementById('summary').textContent=`Top: ${top.map(t=>t.label+` (${t.value})`).join(', ')} | Lowest: ${low.label} (${low.value})`;
- drawWheel();
+ document.getElementById('summary').innerHTML=`Top focus: <strong>${top.map(t=>`${t.label} (${t.value})`).join(', ')}</strong> &nbsp;•&nbsp; Needs attention: <strong>${low.label} (${low.value})</strong>`;
+ triggerAnimation();
 }
 
 // --- Clipboard helpers ---
@@ -160,7 +219,13 @@ function buildScoresText(){
 }
 
 // events
-function refresh(){ areaLabel.textContent = areaSel.value; updateValueLabels(); analyze(); }
+function refresh(){
+  areaLabel.textContent = areaSel.value;
+  updateValueLabels();
+  needsOrder.forEach((n,i)=>{targetValues[i]=+sliders[n.key].value;});
+  updateAllSliderFills();
+  analyze();
+}
 areaSel.addEventListener('change', refresh);
 Object.values(sliders).forEach(sl=>sl.addEventListener('input', refresh));
 
@@ -172,6 +237,31 @@ document.getElementById('reset').addEventListener('click',()=>{
 });
 
 // init
+function triggerAnimation(){
+  if(animating) return;
+  animating=true;
+  function step(){
+    let done=true;
+    for(let i=0;i<displayedValues.length;i++){
+      const diff=targetValues[i]-displayedValues[i];
+      if(Math.abs(diff)>0.02){
+        displayedValues[i]+=diff*0.18;
+        done=false;
+      }else{
+        displayedValues[i]=targetValues[i];
+      }
+    }
+    drawWheel();
+    if(!done){
+      requestAnimationFrame(step);
+    }else{
+      animating=false;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+updateAllSliderFills();
 refresh();
 </script>
 </body>
